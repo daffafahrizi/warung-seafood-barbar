@@ -193,7 +193,33 @@ export default function AdminDashboard() {
                         <div><label className="block text-xs font-bold uppercase text-gray-600 mb-2">Harga Utama</label><input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} className="w-full rounded-xl border p-3 bg-gray-50" /></div>
                         <div><label className="block text-xs font-bold uppercase text-gray-600 mb-2">Teks Tampilan Harga</label><input type="text" value={priceDisplay} onChange={e => setPriceDisplay(e.target.value)} className="w-full rounded-xl border p-3 bg-gray-50" /></div>
                         <div><label className="block text-xs font-bold uppercase text-gray-600 mb-2">Kategori</label><select value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border p-3 bg-gray-50">{categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div>
-                        <div className="flex flex-col gap-2"><label className="block text-xs font-bold uppercase text-gray-600">Foto Menu</label><div className="flex items-center gap-4">{(image || imageFile) && (<img src={imageFile ? URL.createObjectURL(imageFile) : image} alt="Preview" className="w-14 h-14 object-cover rounded-lg" />)}<input type="file" accept="image/*" onChange={e => { if (e.target.files && e.target.files.length > 0) setImageFile(e.target.files[0]); }} className="w-full text-sm text-gray-500" /></div></div>
+                        <div className="flex flex-col gap-2">
+                            <label className="block text-xs font-bold uppercase text-gray-600">
+                                Foto Menu <span className="text-red-500 lowercase font-normal">(Maks. 2MB)</span>
+                            </label>
+                            <div className="flex items-center gap-4">
+                                {(image || imageFile) && (
+                                    <img src={imageFile ? URL.createObjectURL(imageFile) : image} alt="Preview" className="w-14 h-14 object-cover rounded-lg" />
+                                )}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => {
+                                        if (e.target.files && e.target.files.length > 0) {
+                                            const file = e.target.files[0];
+                                            // Validasi ukuran maksimal 2MB (2 * 1024 * 1024 bytes)
+                                            if (file.size > 2 * 1024 * 1024) {
+                                                alert('⚠️ Ukuran foto terlalu besar! Maksimal 2MB ya.');
+                                                e.target.value = ''; // Reset inputan file
+                                                return;
+                                            }
+                                            setImageFile(file);
+                                        }
+                                    }}
+                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer"
+                                />
+                            </div>
+                        </div>
 
                         {/* Varian */}
                         <div className="md:col-span-2 bg-gray-50 p-6 rounded-xl border mt-4">
