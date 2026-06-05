@@ -1,8 +1,8 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import React, { useState, useMemo } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { supabase } from '@/utils/supabase';
 
 // --- TYPES ---
 type MenuItem = {
@@ -18,56 +18,13 @@ type MenuItem = {
 
 type CartItem = MenuItem & { quantity: number };
 
-// --- DATA ---
-const menuItems: any[] = [
-  // Udang & Lobster
-  { id: 'u1', name: 'Udang Galah Bakar/Mentega', price: 45000, priceDisplay: 'Mulai Rp 45.000', category: 'Udang & Lobster', description: 'Ukuran Medium - Super. Daging tebal, gurih manis alami.', image: 'https://images.unsplash.com/photo-1625944531405-3c1340237719?w=500&q=80' },
-  { id: 'u2', name: 'Lobster Bakar Jimbaran/Madu', price: 59000, priceDisplay: 'Mulai Rp 59.000', category: 'Udang & Lobster', description: 'Mewah dan bikin ngiler.', image: 'https://images.unsplash.com/photo-1544250346-6085a62f8547?w=500&q=80' },
-  { id: 'u3', name: 'Udang Bago Bakar', price: 37000, priceDisplay: 'Mulai Rp 37.000', category: 'Udang & Lobster', description: 'Ukuran segar pilihan.', image: 'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500&q=80' },
-  { id: 'u4', name: 'Udang Paname Bakar', price: 29000, priceDisplay: 'Rp 29.000 / 3 Pcs', category: 'Udang & Lobster', description: 'Favorit keluarga.', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-  { id: 'u5', name: 'Udang Mayonaise', price: 23000, priceDisplay: 'Rp 23.000', category: 'Udang & Lobster', description: 'Gurih creamy.', image: 'https://images.unsplash.com/photo-1563223030-c3d52d3a3d53?w=500&q=80' },
-
-  // Ikan Laut
-  { id: 'i1', name: 'Barakuda', price: 17000, priceDisplay: 'Mulai Rp 17.000', category: 'Ikan Laut (Bakar/Goreng)', description: 'Ukuran S hingga Super.', image: 'https://images.unsplash.com/photo-1512152646272-91307b275685?w=500&q=80' },
-  { id: 'i2', name: 'Kakap Laut', price: 27000, priceDisplay: 'Mulai Rp 27.000', category: 'Ikan Laut (Bakar/Goreng)', description: 'Fresh kakap pilihan.', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500&q=80' },
-  { id: 'i3', name: 'Bawal Laut', price: 39000, priceDisplay: 'Mulai Rp 39.000', category: 'Ikan Laut (Bakar/Goreng)', description: 'Daging lembut.', image: 'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=500&q=80' },
-  { id: 'i4', name: 'Kerapu', price: 43000, priceDisplay: 'Mulai Rp 43.000', category: 'Ikan Laut (Bakar/Goreng)', description: 'Daging putih tebal.', image: 'https://images.unsplash.com/photo-1524230505093-64472061993f?w=500&q=80' },
-  { id: 'i5', name: 'Baronang', price: 40000, priceDisplay: 'Mulai Rp 40.000', category: 'Ikan Laut (Bakar/Goreng)', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-  { id: 'i6', name: 'Ekor Kuning', price: 40000, priceDisplay: 'Mulai Rp 40.000', category: 'Ikan Laut (Bakar/Goreng)', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-  { id: 'i7', name: 'Senangin', price: 37000, priceDisplay: 'Mulai Rp 37.000', category: 'Ikan Laut (Bakar/Goreng)', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-  { id: 'i8', name: 'Gurame', price: 35000, priceDisplay: 'Mulai Rp 35.000', category: 'Ikan Laut (Bakar/Goreng)', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-  { id: 'i9', name: 'Nila', price: 17000, priceDisplay: 'Mulai Rp 17.000', category: 'Ikan Laut (Bakar/Goreng)', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-
-  // Kerang & Cumi
-  { id: 'kc1', name: 'Kerang Scallop Bakar', price: 28000, priceDisplay: 'Rp 28.000 / 7 Pcs', category: 'Kerang & Cumi', image: 'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500&q=80' },
-  { id: 'kc2', name: 'Cumi Bakar Jimbaran', price: 29000, priceDisplay: 'Rp 29.000 / 1 Besar + 3 Kecil', category: 'Kerang & Cumi', image: 'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500&q=80' },
-  { id: 'kc3', name: 'Cumi Goreng Tepung', price: 17000, priceDisplay: 'Rp 17.000', category: 'Kerang & Cumi', image: 'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500&q=80' },
-  { id: 'kc4', name: 'Kerang Hijau/Dara Bakar', price: 18000, priceDisplay: 'Mulai Rp 18.000', category: 'Kerang & Cumi', image: 'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500&q=80' },
-  { id: 'kc5', name: 'Kerang Asam Manis', price: 16000, priceDisplay: 'Mulai Rp 16.000', category: 'Kerang & Cumi', image: 'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500&q=80' },
-
-  // Ayam & Nasi
-  { id: 'an1', name: 'Ayam Goreng Rempah', price: 15000, priceDisplay: 'Rp 15.000 / Paha Atas', category: 'Ayam & Nasi', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=500&q=80' },
-  { id: 'an2', name: 'Nasi Goreng Seafood', price: 29000, priceDisplay: 'Rp 29.000', category: 'Ayam & Nasi', image: 'https://images.unsplash.com/photo-1582233535974-984422e11892?w=500&q=80' },
-
-  // Sayur & Tambahan
-  { id: 's1', name: 'Nasi Putih', price: 5000, priceDisplay: 'Rp 5.000', category: 'Sayur & Tambahan', image: 'https://images.unsplash.com/photo-1616850280455-d3e914efaa67?w=500&q=80' },
-  { id: 's2', name: 'Cah Kangkung / Toge', price: 7000, priceDisplay: 'Rp 7.000', category: 'Sayur & Tambahan', image: 'https://images.unsplash.com/photo-1548943487-a2e4e46b4840?w=500&q=80' },
-  { id: 's3', name: 'Tahu/Tempe Goreng', price: 5000, priceDisplay: 'Rp 5.000', category: 'Sayur & Tambahan', image: 'https://images.unsplash.com/photo-1625943419058-299f24bea28b?w=500&q=80' },
-  { id: 's4', name: 'Tahu/Tempe Bakar', price: 7000, priceDisplay: 'Rp 7.000', category: 'Sayur & Tambahan', image: 'https://images.unsplash.com/photo-1599889417937-23dd132d0d0f?w=500&q=80' },
-  { id: 's5', name: 'Extra Sambal', price: 4000, priceDisplay: 'Mulai Rp 3.000', category: 'Sayur & Tambahan', image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=500&q=80' },
-  { id: 's6', name: 'Kerupuk/Peyek/Emping', price: 4000, priceDisplay: 'Mulai Rp 4.000', category: 'Sayur & Tambahan', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=500&q=80' },
-
-  // Minuman
-  { id: 'd1', name: 'Es Teh / Teh Panas', price: 4000, priceDisplay: 'Rp 4.000', category: 'Minuman', image: 'https://images.unsplash.com/photo-1499638673689-79a0b5115d87?w=500&q=80' },
-  { id: 'd2', name: 'Es Teh Krampul', price: 5000, priceDisplay: 'Rp 5.000', category: 'Minuman', image: 'https://images.unsplash.com/photo-1499638673689-79a0b5115d87?w=500&q=80' },
-  { id: 'd3', name: 'Es Jeruk', price: 6000, priceDisplay: 'Rp 6.000', category: 'Minuman', image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=500&q=80' },
-  { id: 'd4', name: 'Es Infuse Water', price: 7000, priceDisplay: 'Rp 7.000 / Free Refill', category: 'Minuman', image: 'https://images.unsplash.com/photo-1523363060599-4d6428c94628?w=500&q=80' },
-  { id: 'd5', name: 'Air Mineral/Air Es', price: 5000, priceDisplay: 'Mulai Rp 2.000', category: 'Minuman', image: 'https://images.unsplash.com/photo-1523363060599-4d6428c94628?w=500&q=80' },
-];
-
 export default function Page() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  // State untuk Supabase
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [loadingMenu, setLoadingMenu] = useState(true);
 
   // Form state
   const [orderType, setOrderType] = useState('dine_in');
@@ -75,11 +32,48 @@ export default function Page() {
   const [guestCount, setGuestCount] = useState(1);
   const [arrivalTime, setArrivalTime] = useState('');
   const [notes, setNotes] = useState('');
+  //announcement
+  const [announcement, setAnnouncement] = useState({ text: '', active: false });
 
   const cartTotalAmount = useMemo(() => cart.reduce((acc, item) => acc + (item.price * item.quantity), 0), [cart]);
   const cartTotalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
 
   const toggleCart = () => setCartOpen(!cartOpen);
+
+
+  // Menarik data dari Supabase
+  // Menarik data dari Supabase & Pengumuman
+  useEffect(() => {
+    const fetchData = async () => {
+      // 1. Tarik Pengumuman
+      const { data: settings } = await supabase.from('store_settings').select('*').eq('id', 'main').single();
+      if (settings) {
+        setAnnouncement({ text: settings.announcement_text, active: settings.is_active });
+      }
+      // console.log('Settings:', settings); // Debug log untuk memastikan data pengumuman berhasil ditarik
+
+      // 2. Tarik Menu
+      const { data, error } = await supabase.from('menus').select('*');
+      if (error) {
+        console.error('Gagal narik data:', error);
+      } else if (data) {
+        const formattedData = data.map((item) => ({
+          id: item.menu_id,
+          name: item.name,
+          price: item.price,
+          priceDisplay: item.price_display,
+          category: item.category,
+          description: item.description,
+          image: item.image,
+          variants: item.variants,
+        }));
+        setMenuItems(formattedData);
+      }
+      setLoadingMenu(false);
+    };
+
+    fetchData();
+  }, []);
 
   const addToCart = (item: any) => {
     setCart((prev) => {
@@ -89,7 +83,6 @@ export default function Page() {
       }
       return [...prev, { ...item, title: item.name, quantity: 1 }];
     });
-    // setCartOpen(true);
   };
 
   const updateQuantity = (id: string, amount: number) => {
@@ -119,7 +112,7 @@ export default function Page() {
     let text = `Halo Seafood Barbar, saya ingin memesan:\n\n`;
     text += `*Detail Pemesan:*\n`;
     text += `- Nama: ${customerName}\n`;
-    text += `- Tipe Pesanan: ${orderType === 'dine_in' ? 'Makan di Sini' : 'Bungkus'}\n`;
+    text += `- Tipe Pesanan: ${orderType === 'dine_in' ? 'Dine in' : 'Takeaway'}\n`;
     if (orderType === 'dine_in') {
       text += `- Jumlah Orang: ${guestCount}\n`;
       text += `- Rencana Jam Datang: ${arrivalTime || '-'}\n`;
@@ -136,7 +129,7 @@ export default function Page() {
     }
 
     const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/6281329813838?text=${encodedText}`, '_blank');
+    window.open(`https://wa.me/6281225172528?text=${encodedText}`, '_blank');
   };
 
   return (
@@ -146,18 +139,36 @@ export default function Page() {
       <main>
         <Hero />
         <TrustBanner />
-        
-        {/* Update Props MenuGrid ini */}
-        <MenuGrid 
-          menus={menuItems} 
-          cart={cart}
-          onAddToCart={addToCart} 
-          onUpdateQuantity={updateQuantity}
-          onRemoveFromCart={removeFromCart}
-          formatPrice={formatPrice} 
-        />
-        
+        {announcement.active && announcement.text && (
+          <div className="bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded-r-2xl shadow-sm max-w-[1200px] mx-4 lg:mx-auto mt-6">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-red-600 text-2xl animate-pulse">campaign</span>
+              <div>
+                <h3 className="font-bold text-red-800 mb-1">Pengumuman Terkini</h3>
+                <p className="text-sm text-red-700 whitespace-pre-wrap">{announcement.text}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {loadingMenu ? (
+          <div className="py-32 text-center flex flex-col items-center justify-center bg-surface-container-lowest" id="menu">
+            <span className="material-symbols-outlined text-[48px] text-primary animate-spin mb-4">refresh</span>
+            <p className="font-label-bold text-on-surface-variant">Memuat menu dari database...</p>
+          </div>
+        ) : (
+          <MenuGrid
+            menus={menuItems}
+            cart={cart}
+            onAddToCart={addToCart}
+            onUpdateQuantity={updateQuantity}
+            onRemoveFromCart={removeFromCart}
+            formatPrice={formatPrice}
+          />
+        )}
+
         <Reviews />
+        <SocialFeed />
         <Location />
       </main>
 
@@ -166,8 +177,8 @@ export default function Page() {
       {/* --- FLOATING CHECKOUT BUTTON --- */}
       {cart.length > 0 && !cartOpen && (
         <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center px-6 pointer-events-none animate-fade-in">
-          <button 
-            onClick={toggleCart} 
+          <button
+            onClick={toggleCart}
             className="w-full max-w-md bg-primary text-white rounded-2xl p-4 flex justify-between items-center shadow-[0_10px_40px_rgba(147,0,11,0.4)] pointer-events-auto hover:scale-105 transition-transform"
           >
             <div className="flex flex-col text-left">
@@ -209,10 +220,8 @@ export default function Page() {
 // --- SUBCOMPONENTS ---
 
 function Navbar({ cartItemsCount, onCartClick }: { cartItemsCount: number; onCartClick: () => void }) {
-  // State untuk melacak menu mana yang aktif
   const [activeSection, setActiveSection] = useState('home');
 
-  // Deteksi scroll layar untuk update garis bawah secara otomatis
   useEffect(() => {
     const handleScroll = () => {
       const sections = ['home', 'promo', 'menu', 'lokasi'];
@@ -221,7 +230,6 @@ function Navbar({ cartItemsCount, onCartClick }: { cartItemsCount: number; onCar
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
-          // Jika jarak elemen ke atas layar kurang dari 150px, anggap sedang aktif
           const rect = element.getBoundingClientRect();
           if (rect.top <= 150) {
             currentSection = section;
@@ -246,7 +254,6 @@ function Navbar({ cartItemsCount, onCartClick }: { cartItemsCount: number; onCar
       <div className="max-w-[1280px] mx-auto px-6 flex justify-between items-center h-full">
         <span className="font-headline-lg text-[32px] font-extrabold text-primary tracking-tighter">SEAFOOD BARBAR</span>
 
-        {/* Looping Nav Links dengan Active State Dinamis */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
@@ -254,8 +261,8 @@ function Navbar({ cartItemsCount, onCartClick }: { cartItemsCount: number; onCar
               href={`#${link.id}`}
               onClick={() => setActiveSection(link.id)}
               className={`font-label-bold text-[14px] transition-all duration-200 py-1 ${activeSection === link.id
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-on-surface hover:text-primary'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-on-surface hover:text-primary'
                 }`}
             >
               {link.label}
@@ -273,13 +280,14 @@ function Navbar({ cartItemsCount, onCartClick }: { cartItemsCount: number; onCar
             )}
           </div>
           <button onClick={onCartClick} className="hidden md:flex bg-primary text-on-primary font-label-bold text-[14px] px-6 py-3 rounded-lg hover:scale-105 active:scale-95 transition-all shadow-md items-center gap-2 hover-glow">
-            Pesanan Online
+            Pesan Online dan  Reservasi
           </button>
         </div>
       </div>
     </nav>
   );
 }
+
 function Hero() {
   return (
     <section className="pt-32 pb-[64px] md:pb-[120px] px-6 overflow-hidden" id="home">
@@ -341,44 +349,52 @@ function TrustBanner() {
         ))}
       </div>
     </div>
+
+
   );
 }
 
-// --- BAGIAN YANG DIROMBAK DENGAN UI GOOGLE STITCH ---
 function MenuCard({ item, cart, onAdd, onUpdateQuantity, onRemove, formatPrice }: any) {
-  const hasVariants = item.priceDisplay.includes('Mulai');
-  const variants = item.variants || (hasVariants ? [
-    { name: 'Ukuran Sedang (M)', price: item.price },
-    { name: 'Ukuran Besar (L)', price: item.price + 15000 },
-    { name: 'Ukuran Super (XL)', price: item.price + 30000 },
-  ] : null);
-
+  const variants = item.variants && item.variants.length > 0 ? item.variants : null;
   const [selectedVariant, setSelectedVariant] = useState(variants ? variants[0] : null);
+
+  // Trik Cerdas: Deteksi otomatis apakah menu ini gabungan Jimbaran & Madu
+  const needsFlavorSelection = item.name.toLowerCase().includes('jimbaran') && item.name.toLowerCase().includes('madu');
+  const [selectedFlavor, setSelectedFlavor] = useState(needsFlavorSelection ? 'Jimbaran' : '');
+
   const displayPrice = selectedVariant ? formatPrice(selectedVariant.price) : formatPrice(item.price);
 
-  // Menentukan ID Unik berdasarkan ukuran (agar M dan L tidak tergabung)
-  const cartItemId = selectedVariant ? `${item.id}-${selectedVariant.name}` : item.id;
-  
-  // Mencari apakah item ini sudah ada di keranjang
+  // Buat ID keranjang unik gabungan dari: ID Menu + Ukuran + Rasa (Biar di keranjang nggak nyampur)
+  const variantId = selectedVariant ? `-${selectedVariant.name}` : '';
+  const flavorId = selectedFlavor ? `-${selectedFlavor}` : '';
+  const cartItemId = `${item.id}${variantId}${flavorId}`;
+
   const cartItem = cart.find((i: any) => i.id === cartItemId);
   const currentQty = cartItem ? cartItem.quantity : 0;
 
   const handleAddInitial = () => {
+    // Format nama agar rapi di keranjang (Misal: "Udang Bago Bakar - Jimbaran - Medium")
+    let finalName = item.name;
+    if (needsFlavorSelection) {
+      finalName = finalName.replace(/\s*\(?Jimbaran\s*\/\s*Madu\)?\s*/i, '');
+      finalName = `${finalName} - Rasa ${selectedFlavor}`;
+    }
+    if (selectedVariant) {
+      finalName = `${finalName} (${selectedVariant.name})`;
+    }
+
     const itemToAdd = {
       ...item,
       id: cartItemId,
-      name: selectedVariant ? `${item.name} - ${selectedVariant.name}` : item.name,
+      name: finalName,
       price: selectedVariant ? selectedVariant.price : item.price,
     };
     onAdd(itemToAdd);
   };
 
   const handleDecrement = () => {
-    if (currentQty === 1) {
-      onRemove(cartItemId);
-    } else {
-      onUpdateQuantity(cartItemId, -1);
-    }
+    if (currentQty === 1) onRemove(cartItemId);
+    else onUpdateQuantity(cartItemId, -1);
   };
 
   return (
@@ -391,57 +407,67 @@ function MenuCard({ item, cart, onAdd, onUpdateQuantity, onRemove, formatPrice }
           </div>
         )}
       </div>
-      
+
       <div className="p-6 flex flex-col flex-grow bg-white">
         <h3 className="font-headline-lg text-[20px] text-on-surface mb-2 leading-tight">{item.name}</h3>
-        <p className="text-primary font-headline-lg text-[22px] mb-4 font-bold">
-          {displayPrice}
-        </p>
-        
+        <p className="text-primary font-headline-lg text-[22px] mb-4 font-bold">{displayPrice}</p>
+
         {item.description && <p className="text-on-surface-variant text-[14px] mb-4 flex-grow">{item.description}</p>}
         {!item.description && <div className="flex-grow mb-4"></div>}
 
+        {/* 1. Dropdown Pilihan Ukuran */}
         {variants && (
           <div className="mb-4 relative">
-            <select 
-              className="w-full p-3 border border-outline-variant rounded-xl text-[13px] font-label-bold text-on-surface-variant focus:border-primary focus:ring-primary focus:ring-1 outline-none appearance-none bg-surface-container-lowest transition-colors cursor-pointer"
+            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">Pilih Ukuran</label>
+            <select
+              className="w-full p-3 border border-outline-variant rounded-xl text-[13px] font-label-bold text-on-surface-variant focus:border-primary focus:ring-primary focus:ring-1 outline-none appearance-none bg-surface-container-lowest cursor-pointer"
               onChange={(e) => {
                 const v = variants.find((v: any) => v.name === e.target.value);
                 setSelectedVariant(v);
               }}
               value={selectedVariant?.name}
             >
-              {variants.map((v: any) => (
-                <option key={v.name} value={v.name}>{v.name}</option>
-              ))}
+              {variants.map((v: any) => <option key={v.name} value={v.name}>{v.name}</option>)}
             </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+            <div className="absolute right-3 top-[28px] pointer-events-none text-on-surface-variant">
               <span className="material-symbols-outlined text-[18px]">expand_more</span>
             </div>
           </div>
         )}
 
-        {/* LOGIKA TOMBOL SHOPEEFOOD STYLE */}
+        {/* 2. Pilihan Bumbu (Otomatis Muncul Kalau Nama Menu Mengandung Jimbaran/Madu) */}
+        {needsFlavorSelection && (
+          <div className="mb-4">
+            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">Pilihan Bumbu Bakar</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setSelectedFlavor('Jimbaran')}
+                className={`py-2 text-[12px] font-bold rounded-lg border transition-all ${selectedFlavor === 'Jimbaran' ? 'bg-primary/10 border-primary text-primary' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+              >
+                Jimbaran
+              </button>
+              <button
+                onClick={() => setSelectedFlavor('Madu')}
+                className={`py-2 text-[12px] font-bold rounded-lg border transition-all ${selectedFlavor === 'Madu' ? 'bg-primary/10 border-primary text-primary' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+              >
+                Madu
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tombol Add / Plus Minus */}
         {currentQty === 0 ? (
-          <button 
-            onClick={handleAddInitial}
-            className="w-full py-3 rounded-xl font-label-bold text-[14px] flex items-center justify-center gap-2 transition-all mt-auto bg-primary/5 text-primary hover:bg-primary hover:text-white"
-          >
+          <button onClick={handleAddInitial} className="w-full py-3 rounded-xl font-label-bold text-[14px] flex items-center justify-center gap-2 transition-all mt-auto bg-primary/5 text-primary hover:bg-primary hover:text-white">
             Tambah <span className="material-symbols-outlined text-[18px]">add</span>
           </button>
         ) : (
           <div className="w-full mt-auto flex items-center justify-between bg-primary/5 rounded-xl p-1 border border-primary/20">
-            <button 
-              onClick={handleDecrement} 
-              className="w-10 h-10 flex items-center justify-center rounded-lg text-primary hover:bg-primary/10 transition-colors"
-            >
+            <button onClick={handleDecrement} className="w-10 h-10 flex items-center justify-center rounded-lg text-primary hover:bg-primary/10 transition-colors">
               <span className="material-symbols-outlined text-[20px]">{currentQty === 1 ? 'delete' : 'remove'}</span>
             </button>
             <span className="font-bold text-[16px] text-primary">{currentQty}</span>
-            <button 
-              onClick={() => onUpdateQuantity(cartItemId, 1)} 
-              className="w-10 h-10 flex items-center justify-center rounded-lg text-white bg-primary hover:bg-primary-fixed-variant transition-colors shadow-sm"
-            >
+            <button onClick={() => onUpdateQuantity(cartItemId, 1)} className="w-10 h-10 flex items-center justify-center rounded-lg text-white bg-primary hover:bg-primary-fixed-variant transition-colors shadow-sm">
               <span className="material-symbols-outlined text-[20px]">add</span>
             </button>
           </div>
@@ -470,11 +496,10 @@ function MenuGrid({ menus, cart, onAddToCart, onUpdateQuantity, onRemoveFromCart
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-6 py-2 rounded-full font-label-bold text-[14px] transition-all duration-300 border ${
-              activeCategory === cat 
-                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30 scale-105' 
-                : 'bg-white text-on-surface-variant border-outline-variant hover:bg-surface-container-high'
-            }`}
+            className={`px-6 py-2 rounded-full font-label-bold text-[14px] transition-all duration-300 border ${activeCategory === cat
+              ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30 scale-105'
+              : 'bg-white text-on-surface-variant border-outline-variant hover:bg-surface-container-high'
+              }`}
           >
             {cat}
           </button>
@@ -483,14 +508,14 @@ function MenuGrid({ menus, cart, onAddToCart, onUpdateQuantity, onRemoveFromCart
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {filteredMenus.map((item: any) => (
-          <MenuCard 
-            key={item.id} 
-            item={item} 
+          <MenuCard
+            key={item.id}
+            item={item}
             cart={cart}
-            onAdd={onAddToCart} 
+            onAdd={onAddToCart}
             onUpdateQuantity={onUpdateQuantity}
             onRemove={onRemoveFromCart}
-            formatPrice={formatPrice} 
+            formatPrice={formatPrice}
           />
         ))}
       </div>
@@ -503,7 +528,7 @@ function Reviews() {
     {
       id: 1,
       name: "Februar Barkah",
-      avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&h=150&fit=crop", 
+      avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&h=150&fit=crop",
       isLocalGuide: true,
       time: "3 bulan lalu",
       rating: 5,
@@ -534,7 +559,7 @@ function Reviews() {
       <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
         <div>
           <span className="text-[#4285F4] font-label-bold text-[14px] uppercase tracking-widest flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px]">verified</span> 
+            <span className="material-symbols-outlined text-[18px]">verified</span>
             Ulasan Asli Google Maps
           </span>
           <h2 className="font-headline-xl text-[40px] md:text-[48px] font-extrabold tracking-tight mt-2 text-on-surface">
@@ -575,23 +600,90 @@ function Reviews() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex text-[#FBBC04] mb-3 text-[18px] tracking-widest">
               {"★★★★★".split("").map((star, i) => (
                 <span key={i}>{star}</span>
               ))}
             </div>
-            
+
             <p className="text-on-surface-variant text-[14px] leading-relaxed flex-grow italic">
               "{review.text}"
             </p>
-            
+
             <div className="mt-6 flex justify-end opacity-40 group-hover:opacity-100 transition-opacity">
-               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" /><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" /><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" /><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" /></svg>
             </div>
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+function SocialFeed() {
+  return (
+    <section className="py-[64px] md:py-[100px] px-6 bg-surface-container-lowest overflow-hidden" id="social">
+      <div className="max-w-[1280px] mx-auto text-center mb-12">
+        <span className="text-secondary font-label-bold text-[14px] uppercase tracking-widest text-secondary-container">Ikuti Keseruannya</span>
+        <h2 className="font-headline-xl text-[40px] md:text-[48px] font-extrabold tracking-tight mt-2 text-on-surface">
+          Seafood Barbar di Media Sosial
+        </h2>
+        <p className="font-body-md text-[16px] text-on-surface-variant max-w-2xl mx-auto mt-4">
+          Intip keseruan di balik dapur kami, promo terbaru, dan momen barbar para pelanggan!
+        </p>
+      </div>
+
+      <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        {/* KOLOM TIKTOK */}
+        <div className="bg-white rounded-3xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col">
+          <div className="p-4 bg-black text-white flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[18px]">TikTok</span>
+            </div>
+            <a href="https://www.tiktok.com/@seafoodbarbar" target="_blank" rel="noreferrer" className="text-xs bg-white text-black px-4 py-1.5 rounded-full font-bold hover:bg-gray-200 transition">
+              Follow Us
+            </a>
+          </div>
+          <div className="p-6 flex-grow flex items-center justify-center bg-gray-50">
+            {/* TEMPAT EMBED TIKTOK */}
+            {/* Ganti URL blockquote di bawah dengan URL Embed dari video TikTok-mu */}
+            <blockquote className="tiktok-embed" cite="https://www.tiktok.com/@seafoodbarbarsolo/video/7541363556218932486" data-video-id="7541363556218932486" > <section> <a target="_blank" title="@seafoodbarbarsolo" href="https://www.tiktok.com/@seafoodbarbarsolo?refer=embed">@seafoodbarbarsolo</a> Haloo Barbarian⛵️ Yuuk cobain makan di WARUNG SEAFOOD BARBAR. Seafood nyaa fresh, bumbuu bedaa dari yang lain😋😋 Harganyaa kaki lima🤏🏼🤏🏼 📍 : Warung Seafood Barbar, Komplek Kuliner Alun-alun Utara Solo ⏰️ : 17.00 -23.15 (Last Order) 📞 : 081329813838 100%  HALAL <a title="fyp" target="_blank" href="https://www.tiktok.com/tag/fyp?refer=embed">#fyp</a> <a title="solo" target="_blank" href="https://www.tiktok.com/tag/solo?refer=embed">#Solo</a> <a title="rekomendasimakanan" target="_blank" href="https://www.tiktok.com/tag/rekomendasimakanan?refer=embed">#rekomendasimakanan</a> <a title="seafood" target="_blank" href="https://www.tiktok.com/tag/seafood?refer=embed">#seafood</a> <a target="_blank" title="♬ original sound  - Warung Seafood Barbar" href="https://www.tiktok.com/music/original-sound-Warung-Seafood-Barbar-7541363906531396408?refer=embed">♬ original sound  - Warung Seafood Barbar</a> </section> </blockquote> <script async src="https://www.tiktok.com/embed.js"></script>
+          </div>
+        </div>
+
+        {/* KOLOM INSTAGRAM */}
+        <div className="bg-white rounded-3xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col">
+          <div className="p-4 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[18px]">Instagram</span>
+            </div>
+            <a href="https://www.instagram.com/seafoodbarbar" target="_blank" rel="noreferrer" className="text-xs bg-white text-black px-4 py-1.5 rounded-full font-bold hover:bg-gray-200 transition">
+              Follow Us
+            </a>
+          </div>
+          <div className="p-6 flex-grow flex items-center justify-center bg-gray-50">
+
+            {/* --- INI KODE EMBED IG VERSI REACT (JALUR IFRAME) --- */}
+            <iframe
+              src="https://www.instagram.com/reel/DX55diQzlBT/embed"
+              width="100%"
+              height="500"
+              frameBorder="0"
+              scrolling="no"
+              allowTransparency={true}
+              className="w-full max-w-[325px] rounded-2xl shadow-lg border bg-white"
+            ></iframe>
+            {/* ---------------------------------------------------- */}
+
+          </div>
+        </div>
+
+      </div>
+
+      {/* SCRIPT WAJIB UNTUK TIKTOK EMBED */}
+      <script async src="https://www.tiktok.com/embed.js"></script>
     </section>
   );
 }
@@ -631,29 +723,20 @@ function Location() {
               </div>
               <div>
                 <h4 className="font-label-bold text-[14px] text-on-surface">Hubungi Kami</h4>
-                <p className="font-body-md text-[16px] text-on-surface-variant">+62 813-2981-3838</p>
+                <p className="font-body-md text-[16px] text-on-surface-variant">+62 812-2517-2528</p>
               </div>
             </div>
           </div>
-          <a 
-            href="https://maps.app.goo.gl/rvCrVxicN1ieBvPf8" // Kamu bisa ganti dengan link "Share" pendek dari Google Maps-mu
-            target="_blank" 
-            rel="noreferrer"
-            className="bg-primary text-on-primary font-label-bold text-[14px] px-10 py-5 rounded-2xl hover:bg-secondary-container transition-all w-fit shadow-xl flex items-center gap-2"
-          >
-            Buka Aplikasi Maps <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-          </a>
         </div>
-        
-        {/* --- BAGIAN EMBED GOOGLE MAPS ASLI --- */}
+
         <div className="w-full md:w-1/2 rounded-3xl overflow-hidden shadow-2xl h-[400px] border-8 border-white bg-gray-200 relative">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3954.9993923247503!2d110.82724817505003!3d-7.575043192439222!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a170033494223%3A0xa880a7a11c04ee33!2sWarung%20Seafood%20Barbar!5e0!3m2!1sid!2sid!4v1780564702263!5m2!1sid!2sid" 
-            width="100%" 
-            height="100%" 
-            style={{ border: 0 }} 
-            allowFullScreen={true} 
-            loading="lazy" 
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3954.9993923247503!2d110.82724817505003!3d-7.575043192439222!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a170033494223%3A0xa880a7a11c04ee33!2sWarung%20Seafood%20Barbar!5e0!3m2!1sid!2sid!4v1780564702263!5m2!1sid!2sid"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             title="Google Maps Warung Seafood Barbar"
             className="absolute inset-0"
@@ -692,8 +775,6 @@ function Footer() {
     </footer>
   );
 }
-
-// --- CART DRAWER COMPONENT ---
 
 function CartDrawer({
   isOpen,
@@ -780,11 +861,11 @@ function CartDrawer({
               <div className="grid grid-cols-2 gap-2">
                 <label className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${orderType === 'dine_in' ? 'border-primary bg-primary/5 text-primary' : 'border-outline-variant bg-surface-container-low hover:bg-surface-container-high'}`}>
                   <input type="radio" name="order_type" value="dine_in" checked={orderType === 'dine_in'} onChange={() => setOrderType('dine_in')} className="hidden" />
-                  <span className="text-body-md text-[14px] font-medium">Makan di Tempat</span>
+                  <span className="text-body-md text-[14px] font-medium">Dine in</span>
                 </label>
                 <label className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${orderType === 'takeaway' ? 'border-primary bg-primary/5 text-primary' : 'border-outline-variant bg-surface-container-low hover:bg-surface-container-high'}`}>
                   <input type="radio" name="order_type" value="takeaway" checked={orderType === 'takeaway'} onChange={() => setOrderType('takeaway')} className="hidden" />
-                  <span className="text-body-md text-[14px] font-medium">Bungkus</span>
+                  <span className="text-body-md text-[14px] font-medium">Takeaway</span>
                 </label>
               </div>
             </div>
