@@ -649,7 +649,7 @@ function SocialFeed() {
           <div className="p-6 flex-grow flex items-center justify-center bg-gray-50">
             {/* TEMPAT EMBED TIKTOK */}
             {/* Ganti URL blockquote di bawah dengan URL Embed dari video TikTok-mu */}
-            <blockquote className="tiktok-embed" cite="https://www.tiktok.com/@seafoodbarbarsolo/video/7541363556218932486" data-video-id="7541363556218932486" > <section> <a target="_blank" title="@seafoodbarbarsolo" href="https://www.tiktok.com/@seafoodbarbarsolo?refer=embed">@seafoodbarbarsolo</a> Haloo Barbarian⛵️ Yuuk cobain makan di WARUNG SEAFOOD BARBAR. Seafood nyaa fresh, bumbuu bedaa dari yang lain😋😋 Harganyaa kaki lima🤏🏼🤏🏼 📍 : Warung Seafood Barbar, Komplek Kuliner Alun-alun Utara Solo ⏰️ : 17.00 -23.15 (Last Order) 📞 : 081329813838 100%  HALAL <a title="fyp" target="_blank" href="https://www.tiktok.com/tag/fyp?refer=embed">#fyp</a> <a title="solo" target="_blank" href="https://www.tiktok.com/tag/solo?refer=embed">#Solo</a> <a title="rekomendasimakanan" target="_blank" href="https://www.tiktok.com/tag/rekomendasimakanan?refer=embed">#rekomendasimakanan</a> <a title="seafood" target="_blank" href="https://www.tiktok.com/tag/seafood?refer=embed">#seafood</a> <a target="_blank" title="♬ original sound  - Warung Seafood Barbar" href="https://www.tiktok.com/music/original-sound-Warung-Seafood-Barbar-7541363906531396408?refer=embed">♬ original sound  - Warung Seafood Barbar</a> </section> </blockquote> <script async src="https://www.tiktok.com/embed.js"></script>
+            <blockquote className="tiktok-embed" cite="https://www.tiktok.com/@seafoodbarbarsolo/video/7541363556218932486" data-video-id="7541363556218932486" > <section> <a target="_blank" title="@seafoodbarbarsolo" href="https://www.tiktok.com/@seafoodbarbarsolo?refer=embed">@seafoodbarbarsolo</a> Haloo Barbarian Yuuk cobain makan di WARUNG SEAFOOD BARBAR. Seafood nyaa fresh, bumbuu bedaa dari yang lain Harganyaa kaki lima Alamat : Warung Seafood Barbar, Komplek Kuliner Alun-alun Utara Solo Jam Buka : 17.00 -23.15 (Last Order) Whatsapp : 081329813838 100%  HALAL <a title="fyp" target="_blank" href="https://www.tiktok.com/tag/fyp?refer=embed">#fyp</a> <a title="solo" target="_blank" href="https://www.tiktok.com/tag/solo?refer=embed">#Solo</a> <a title="rekomendasimakanan" target="_blank" href="https://www.tiktok.com/tag/rekomendasimakanan?refer=embed">#rekomendasimakanan</a> <a title="seafood" target="_blank" href="https://www.tiktok.com/tag/seafood?refer=embed">#seafood</a> <a target="_blank" title="♬ original sound  - Warung Seafood Barbar" href="https://www.tiktok.com/music/original-sound-Warung-Seafood-Barbar-7541363906531396408?refer=embed">♬ original sound  - Warung Seafood Barbar</a> </section> </blockquote> <script async src="https://www.tiktok.com/embed.js"></script>
           </div>
         </div>
 
@@ -672,7 +672,6 @@ function SocialFeed() {
               height="500"
               frameBorder="0"
               scrolling="no"
-              allowTransparency={true}
               className="w-full max-w-[325px] rounded-2xl shadow-lg border bg-white"
             ></iframe>
             {/* ---------------------------------------------------- */}
