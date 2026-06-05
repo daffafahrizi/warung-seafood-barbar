@@ -42,9 +42,18 @@ export default function AdminDashboard() {
     }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault(); setLoggingIn(true);
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert('Gagal Login: Email/Password salah atau akses ditolak!');
+        e.preventDefault();
+        setLoggingIn(true);
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            alert('Gagal Login: Email/Password salah!');
+        } else if (data.session) {
+            // JIKA BERHASIL: Paksa website untuk memuat ulang layar agar masuk ke Dashboard!
+            window.location.reload();
+        }
+
         setLoggingIn(false);
     };
 
