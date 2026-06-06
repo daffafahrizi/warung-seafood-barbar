@@ -184,7 +184,7 @@ export default function Page() {
         )}
         <ImageGallery />
         <Reviews />
-        {/* <SocialFeed /> */}
+        <SocialFeed />
         <Location />
       </main>
 
